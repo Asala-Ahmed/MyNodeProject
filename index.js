@@ -13,7 +13,7 @@ app.use(express.json())
 
 
 // Use routes
-app.use('/api/auth', authRoutes);
+app.use('/', authRoutes);
 
 await mongoose.connect('mongodb://localhost:27017/users');
 
