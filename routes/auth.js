@@ -3,6 +3,10 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs"
 import User from "../models/User.js"; // Import the User model
 import jwt from "jsonwebtoken";
+import { generateAccessToken, generateRefreshToken } from '../helpers/tokenHelper.js';
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const router = express.Router();
 
@@ -69,9 +73,9 @@ router.post("/signin", async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        // Generate tokens
-        const accessToken = jwt.sign({ userId: user._id }, "yourAccessSecretKey", { expiresIn: "15m" });
-        const refreshToken = jwt.sign({ userId: user._id }, "yourRefreshSecretKey", { expiresIn: "7d" });
+        // Generate tokens using the token service
+        const accessToken = generateAccessToken(user._id);
+        const refreshToken = generateRefreshToken(user._id);
 
         res.status(200).json({
             message: "Signin successful",

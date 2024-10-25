@@ -14,6 +14,9 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    refreshToken: {
+        type: String,
+    },
 });
 
 // Create and export the User model
