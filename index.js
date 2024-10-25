@@ -1,7 +1,7 @@
-import bodyParser from "body-parser";
 import express from "express";
 import mongoose from "mongoose";
 import authRoutes from './routes/auth.js';
+import organizationRoutes from './routes/organization.js';
 import dotenv from 'dotenv';
 
 const app = express();
@@ -19,6 +19,7 @@ app.use(express.json())
 
 // Use routes
 app.use('/', authRoutes);
+app.use('/organization', organizationRoutes);
 
 await mongoose.connect(mongoURI);
 
