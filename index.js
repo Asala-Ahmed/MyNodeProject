@@ -3,14 +3,12 @@ import mongoose from "mongoose";
 import authRoutes from './routes/auth.js';
 import organizationRoutes from './routes/organization.js';
 import dotenv from 'dotenv';
+import authenticate from "./routes/middleware.js";
 
 const app = express();
 
 dotenv.config();
 
-// Now you can access your secrets
-const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
-const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
 const port = process.env.PORT;
 const mongoURI = process.env.MONGO_URI;
 
@@ -19,7 +17,7 @@ app.use(express.json())
 
 // Use routes
 app.use('/', authRoutes);
-app.use('/organization', organizationRoutes);
+app.use('/organization',authenticate, organizationRoutes);
 
 await mongoose.connect(mongoURI);
 

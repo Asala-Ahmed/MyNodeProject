@@ -1,10 +1,7 @@
 import express from "express";
-import mongoose from "mongoose";
 import bcrypt from "bcryptjs"
 import User from "../models/User.js";
-import Organization from "../models/Organization.js";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../helpers/tokenHelper.js';
-import authenticate from './middleware.js';
 import dotenv from "dotenv";
 
 
@@ -69,7 +66,7 @@ router.post("/signin", async (req, res) => {
     try {
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).json({ message: "User not found" });
+            return res.status(404).json({ message: "Invalid credentials" });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -115,69 +112,7 @@ router.post("/refresh-token", (req, res) => {
     }
 });
 
-// Create Organization Endpoint
-router.post("/", authenticate, async (req, res) => {
-    const { name, description } = req.body;
 
-    try {
-        const organization = new Organization({ name, description });
-        await organization.save();
-
-        // Optionally, you could add the creator as a member of the organization
-        organization.members.push({ userId: req.user.userId, accessLevel: 'admin' });
-        await organization.save();
-
-        res.status(201).json({ organization_id: organization._id });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send("Server error");
-    }
-});
-
-// Read Organization Endpoint
-router.get("/organization/:organizationId", async (req, res) => {
-    const { organizationId } = req.params;
-
-    if (!mongoose.isValidObjectId(organizationId)) {
-        return res.status(400).json({ message: "Invalid organization ID format" });
-    }
-
-    try {
-        const organization = await Organization.findById(organizationId);
-        if (!organization) {
-            return res.status(404).json({ message: "Organization not found" });
-        }
-        res.status(200).json(organization);
-    } catch (err) {
-        console.error("Error retrieving organization:", err);
-        res.status(500).send("Server error");
-    }
-});
-
-// GET /organization - Read All Organizations
-router.get("/organization", authenticate, async (req, res) => {
-    try {
-        const organizations = await Organization.find({})
-            .populate("members.userId", "name email") // Populate user info in members
-            .lean();
-
-        const response = organizations.map(org => ({
-            organization_id: org._id.toString(),
-            name: org.name,
-            description: org.description,
-            organization_members: org.members.map(member => ({
-                name: member.userId.name,
-                email: member.userId.email,
-                access_level: member.accessLevel,
-            })),
-        }));
-
-        res.status(200).json(response);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ message: "Server error" });
-    }
-});
 
 
 export default router;
