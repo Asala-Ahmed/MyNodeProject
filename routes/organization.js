@@ -123,9 +123,6 @@ router.delete("/:organization_id", async (req, res) => {
 router.post("/:organization_id/invite", async (req, res) => {
     const { organization_id } = req.params;
     const { email } = req.body;
-    console.log(req.body)
-
-    console.log("Received invite request for organization:", organization_id, "and user email:", email);
 
     // Validate organization ID
     if (!mongoose.isValidObjectId(organization_id)) {
@@ -136,21 +133,14 @@ router.post("/:organization_id/invite", async (req, res) => {
         // Find the organization by ID
         const organization = await Organization.findById(organization_id);
         if (!organization) {
-            console.log("Organization not found");
             return res.status(404).json({ message: "Organization not found" });
         }
-
-        // Debugging output for user search
-        console.log("Searching for user with email:", email);
 
         // Find the user by email
         const user = await User.findOne({ email: email });
         if (!user) {
-            console.log("User not found in the database.");
             return res.status(404).json({ message: "User not found" });
         }
-
-        console.log("User found:", user);
 
         // Check if the user is already a member
         const isAlreadyMember = organization.members.some(member => member.userId.equals(user._id));

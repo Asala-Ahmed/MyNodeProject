@@ -10,26 +10,6 @@ dotenv.config();
 
 const router = express.Router();
 
-
-
-router.get("/", async (req, res) => {
-    try {
-        console.log("i got into here");
-        const users = await User.find({}); // Fetch all users from the User collection
-        console.log(users); // Log the fetched users
-
-        if (users.length === 0) {
-            console.log("No users found");
-            return res.status(404).json({ msg: "No users found" });
-        }
-
-        res.status(200).json(users); // Return the list of users as JSON
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
-});
-
 router.post("/signup", async (req, res) => {
     const { name, email, password } = req.body;
 
