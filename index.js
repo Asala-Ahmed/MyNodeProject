@@ -19,7 +19,9 @@ app.use(express.json())
 app.use('/', authRoutes);
 app.use('/organization',authenticate, organizationRoutes);
 
-await mongoose.connect(mongoURI);
+await mongoose.connect(mongoURI ,{ useNewUrlParser: true, useUnifiedTopology: true })
+.then(() => console.log('Connected to MongoDB'))
+.catch((err) => console.error('Failed to connect to MongoDB:', err));
 
 app.listen(port, ()=>{
     console.log(`server is starting at port ${port}`);
