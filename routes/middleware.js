@@ -1,3 +1,4 @@
+import client from '../helpers/redisClient.js';
 import { verifyToken } from '../helpers/tokenHelper.js'; // Adjust the path to your token service
 
 // Middleware to verify token
