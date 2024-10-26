@@ -4,6 +4,7 @@ import authRoutes from './routes/auth.js';
 import organizationRoutes from './routes/organization.js';
 import dotenv from 'dotenv';
 import authenticate from "./routes/middleware.js";
+const cors = require('cors');
 
 const app = express();
 
@@ -13,6 +14,7 @@ const port = process.env.PORT;
 const mongoURI = process.env.MONGO_URI;
 
 app.use(express.json())
+app.use(cors());
 
 
 // Use routes
