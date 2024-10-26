@@ -10,6 +10,12 @@ services:
     volumes:
       - mongo-data:/data/db
 
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+      
   node-app:
     build: .
     container_name: node-app

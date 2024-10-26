@@ -11,7 +11,7 @@ const authenticate = async (req, res, next) => {
     // Check if the token is revoked
     const isRevoked = await client.get(token);
     if (!isRevoked) {
-        return res.status(403).json({ message: "Invalid token" });
+        return res.status(401).json({ message: "Invalid token" });
     }
 
     try {
@@ -19,7 +19,7 @@ const authenticate = async (req, res, next) => {
         req.user = user;
         next();
     } catch (err) {
-        return res.status(403).json({ message: "Invalid token" });
+        return res.status(401).json({ message: "Invalid token" });
     }
 };
 

@@ -19,19 +19,27 @@ const generateRefreshToken = (userId) => {
     return token;
 };
 
-const revokeToken = (token) => {
-    client.del(token, (err, reply) => {
-        if (err) {
-            console.error("Error revoking token:", err);
+const revokeToken = async (token) => {
+    try {
+        const reply = await client.del(token);
+        if (reply === 0) {
+            return false;
         } else {
-            console.log("Token revoked:", reply);
+            return true;
         }
-    });
+    } catch (err) {
+        console.error("Error revoking token:", err);
+    }
 };
 
-const verifyRefreshToken = (token) => {
+const verifyRefreshToken = async (token) => {
     try {
-        return jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+        const isRevoked = await client.get(token);        
+        if (!isRevoked) {
+            return false;
+        }
+        const isVerified =  jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+        return isVerified;   
     } catch (error) {
         throw new Error("Invalid token");
     }

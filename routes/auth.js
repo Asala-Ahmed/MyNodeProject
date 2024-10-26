@@ -1,7 +1,7 @@
 import express from "express";
 import bcrypt from "bcryptjs"
 import User from "../models/User.js";
-import { generateAccessToken, generateRefreshToken, verifyRefreshToke,revokeToken } from '../helpers/tokenHelper.js';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken ,revokeToken } from '../helpers/tokenHelper.js';
 import dotenv from "dotenv";
 import authenticate from "./middleware.js";
 
@@ -70,7 +70,7 @@ router.post("/signin", async (req, res) => {
     }
 });
 
-router.post("/refresh-token", (req, res) => {
+router.post("/refresh-token", async (req, res) => {
     const { refresh_token } = req.body;
 
     if (!refresh_token) {
@@ -79,7 +79,11 @@ router.post("/refresh-token", (req, res) => {
 
     try {
         // Use the verify function from tokenService
-        const user = verifyRefreshToken(refresh_token);
+        const user = await verifyRefreshToken(refresh_token);
+
+        if(!user){
+            return res.status(401).json({ message: "Invalid refresh token" });
+        }
 
         // Generate a new access token
         const accessToken = generateAccessToken(user.userId);
@@ -89,7 +93,7 @@ router.post("/refresh-token", (req, res) => {
             refresh_token: refresh_token // Returning the same refresh token
         });
     } catch (err) {
-        return res.status(403).json({ message: "Invalid refresh token" });
+        return res.status(401).json({ message: "Invalid refresh token" });
     }
 });
 
@@ -102,7 +106,10 @@ router.post("/revoke-refresh-token",authenticate, async (req, res) => {
     }
 
     // Revoke the refresh token in Redis
-    revokeToken(refresh_token);
+    const result = await revokeToken(refresh_token);
+    if(!result){
+        res.status(400).json({ message: "Bad request" });
+    }
 
     res.status(200).json({ message: "Refresh token revoked successfully" });
 });
