@@ -1,17 +1,33 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import client from "./redisClient.js";
 
 // Load environment variables from .env file
 dotenv.config();
 
 const generateAccessToken = (userId) => {
-    return jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" });
+    const token = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET);
+    client.set(token, "active", "EX", 900); // Setting an expiration of 15 minutes
+
+    return token;
 };
 
 const generateRefreshToken = (userId) => {
-    return jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET);
+    client.set(token, "active", "EX", 604800); // Setting an expiration of 7 days
+
+    return token;
 };
 
+const revokeToken = (token) => {
+    client.del(token, (err, reply) => {
+        if (err) {
+            console.error("Error revoking token:", err);
+        } else {
+            console.log("Token revoked:", reply);
+        }
+    });
+};
 
 const verifyRefreshToken = (token) => {
     try {
@@ -29,4 +45,4 @@ const verifyToken = (token) => {
     }
 };
 
-export { generateAccessToken, generateRefreshToken, verifyRefreshToken, verifyToken };
+export { generateAccessToken, generateRefreshToken, verifyRefreshToken, verifyToken, revokeToken };

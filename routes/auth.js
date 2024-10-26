@@ -1,8 +1,9 @@
 import express from "express";
 import bcrypt from "bcryptjs"
 import User from "../models/User.js";
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../helpers/tokenHelper.js';
+import { generateAccessToken, generateRefreshToken, verifyRefreshToke,revokeToken } from '../helpers/tokenHelper.js';
 import dotenv from "dotenv";
+import authenticate from "./middleware.js";
 
 
 dotenv.config();
@@ -112,6 +113,19 @@ router.post("/refresh-token", (req, res) => {
     }
 });
 
+
+router.post("/revoke-refresh-token",authenticate, async (req, res) => {
+    const { refresh_token } = req.body;
+
+    if (!refresh_token) {
+        return res.status(400).json({ message: "Refresh token is required" });
+    }
+
+    // Revoke the refresh token in Redis
+    revokeToken(refresh_token);
+
+    res.status(200).json({ message: "Refresh token revoked successfully" });
+});
 
 
 
