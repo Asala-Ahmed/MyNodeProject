@@ -1,7 +1,4 @@
 {
 "version": 2,
-"docker": {
-    "file": "Dockerfile"
-  },
 "routes": [{"src": "/(.*)", "dest": "/"}] 
 }
